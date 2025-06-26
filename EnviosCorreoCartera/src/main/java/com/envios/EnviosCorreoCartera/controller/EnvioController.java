@@ -42,6 +42,8 @@ import java.util.Optional;
     @PostMapping("/enviar-correos")
     public String procesarEnvio(
             @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam("asunto") String asunto,
+            @RequestParam("cuerpo") String cuerpo,
             Model model) {
 
         List<SubsiRad> registros = subsiRadRepository.findByFechaAndEnviado(fecha, "NO");
@@ -78,12 +80,11 @@ import java.util.Optional;
                 byte[] archivo1 = sftpService.descargarArchivo(registro.getNomarchivo());
                 byte[] archivo2 = sftpService.descargarArchivo(registro.getNomarchivo2());
 
-                String asunto = "Notificación de Documentos: Radicado " + registro.getNrorad().trim();
-                String cuerpo = "Estimado usuario,\n\nAdjuntamos los documentos persuasivos correspondientes a su proceso.\n\nSaludos.";
+                String asuntoPersonalizado = asunto + " - Radicado: " + registro.getNrorad().trim();
 
                 emailService.enviarCorreoConAdjuntos(
                         emailDestino,
-                        asunto,
+                        asuntoPersonalizado,
                         cuerpo,
                         registro.getNomarchivo(),
                         archivo1,

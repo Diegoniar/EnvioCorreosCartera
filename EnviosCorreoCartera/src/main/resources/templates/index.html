@@ -4,54 +4,154 @@
     <meta charset="UTF-8">
     <title>Envío de Correos Persuasivos</title>
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
-        input { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
-        button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
-        .mensaje { margin-top: 20px; padding: 10px; background-color: #e7f3fe; border-left: 6px solid #2196F3; }
+        /* Estilos generales del cuerpo de la página */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Contenedor principal con aspecto de 'tarjeta' */
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        /* Contenedor del formulario usando CSS Grid para alinear */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 150px 1fr; /* Columna 1 para etiquetas, Columna 2 para campos */
+            gap: 15px 20px; /* Espacio entre filas y columnas */
+            align-items: center; /* Centra verticalmente los elementos en cada fila */
+        }
+
+        label {
+            text-align: right;
+            color: #555;
+            font-weight: bold;
+        }
+
+        /* Estilos para los campos de texto y área de texto */
+        input[type="date"],
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        textarea {
+            resize: vertical; /* Permite al usuario cambiar la altura del área de texto */
+        }
+
+        .button-container {
+            grid-column: 1 / -1; /* El botón ocupa todo el ancho de la cuadrícula */
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilos para la sección de resultados */
+        .results-section {
+            margin-top: 30px;
+        }
+        .mensaje { padding: 10px; background-color: #e7f3fe; border-left: 6px solid #2196F3; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
         th { background-color: #f2f2f2; }
-        .status-enviado { color: green; font-weight: bold; }
-        .status-error { color: red; font-weight: bold; }
+        .status-enviado { color: #28a745; font-weight: bold; }
+        .status-error { color: #dc3545; font-weight: bold; }
     </style>
 </head>
 <body>
-<h1>Seleccionar Fecha para Envío</h1>
-<form action="/enviar-correos" method="post">
-    <label for="fecha">Fecha:</label>
-    <input type="date" id="fecha" name="fecha" required>
-    <button type="submit">Iniciar Envío de Correos</button>
-</form>
+<div class="container">
+    <h1>Seleccionar Fecha y Contenido del Correo</h1>
+    <form action="/enviar-correos" method="post">
+        <div class="form-grid">
+            <label for="fecha">Fecha de Envío:</label>
+            <input type="date" id="fecha" name="fecha" required>
 
-<div th:if="${mensaje}" class="mensaje">
-    <p th:text="${mensaje}"></p>
+            <label for="asunto">Asunto del Correo:</label>
+            <input type="text" id="asunto" name="asunto" placeholder="Ej: Notificación Importante de Cartera" required>
+
+            <label for="cuerpo">Cuerpo del Mensaje:</label>
+            <textarea id="cuerpo" name="cuerpo" rows="6" placeholder="Escriba aquí el mensaje que irá en el correo..." required></textarea>
+
+            <div class="button-container">
+                <button type="submit">Iniciar Envío de Correos</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="results-section">
+        <div th:if="${mensaje}" class="mensaje">
+            <p th:text="${mensaje}"></p>
+        </div>
+
+        <div th:if="${resultados != null and not #lists.isEmpty(resultados)}">
+            <h2>Resultados del Envío</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>NIT</th>
+                    <th>Email</th>
+                    <th>Estado</th>
+                    <th>Detalle</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="resultado : ${resultados}">
+                    <td th:text="${resultado.nit}"></td>
+                    <td th:text="${resultado.email}"></td>
+                    <td>
+                                <span th:text="${resultado.estado}"
+                                      th:class="${resultado.estado == 'ENVIADO'} ? 'status-enviado' : 'status-error'">
+                                </span>
+                    </td>
+                    <td th:text="${resultado.detalle}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-
-<div th:if="${resultados != null and not #lists.isEmpty(resultados)}">
-    <h2>Resultados del Envío</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>NIT</th>
-            <th>Email</th>
-            <th>Estado</th>
-            <th>Detalle</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="resultado : ${resultados}">
-            <td th:text="${resultado.nit}"></td>
-            <td th:text="${resultado.email}"></td>
-            <td>
-                        <span th:text="${resultado.estado}"
-                              th:class="${resultado.estado == 'ENVIADO'} ? 'status-enviado' : 'status-error'">
-                        </span>
-            </td>
-            <td th:text="${resultado.detalle}"></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
 </body>
 </html>
