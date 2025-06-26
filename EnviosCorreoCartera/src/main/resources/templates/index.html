@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Envío de Correos Persuasivos</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        input { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        .mensaje { margin-top: 20px; padding: 10px; background-color: #e7f3fe; border-left: 6px solid #2196F3; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .status-enviado { color: green; font-weight: bold; }
+        .status-error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1>Seleccionar Fecha para Envío</h1>
+<form action="/enviar-correos" method="post">
+    <label for="fecha">Fecha:</label>
+    <input type="date" id="fecha" name="fecha" required>
+    <button type="submit">Iniciar Envío de Correos</button>
+</form>
+
+<div th:if="${mensaje}" class="mensaje">
+    <p th:text="${mensaje}"></p>
+</div>
+
+<div th:if="${resultados != null and not #lists.isEmpty(resultados)}">
+    <h2>Resultados del Envío</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>NIT</th>
+            <th>Email</th>
+            <th>Estado</th>
+            <th>Detalle</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="resultado : ${resultados}">
+            <td th:text="${resultado.nit}"></td>
+            <td th:text="${resultado.email}"></td>
+            <td>
+                        <span th:text="${resultado.estado}"
+                              th:class="${resultado.estado == 'ENVIADO'} ? 'status-enviado' : 'status-error'">
+                        </span>
+            </td>
+            <td th:text="${resultado.detalle}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
