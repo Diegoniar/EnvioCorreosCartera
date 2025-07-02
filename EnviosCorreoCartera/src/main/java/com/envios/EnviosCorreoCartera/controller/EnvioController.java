@@ -42,8 +42,10 @@ import java.util.Optional;
     @PostMapping("/enviar-correos")
     public String procesarEnvio(
             @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam("unidadNegocio") String unidadNegocio,
             @RequestParam("asunto") String asunto,
             @RequestParam("cuerpo") String cuerpo,
+            @RequestParam("sftpPath") String sftpPath,
             Model model) {
 
         List<SubsiRad> registros = subsiRadRepository.findByFechaAndEnviado(fecha, "NO");
@@ -77,8 +79,8 @@ import java.util.Optional;
                 System.out.println(">>>>>> Intentando enviar al correo: '" + emailDestino.trim() + "'");
 
 
-                byte[] archivo1 = sftpService.descargarArchivo(registro.getNomarchivo());
-                byte[] archivo2 = sftpService.descargarArchivo(registro.getNomarchivo2());
+                byte[] archivo1 = sftpService.descargarArchivo(registro.getNomarchivo(), sftpPath);
+                byte[] archivo2 = sftpService.descargarArchivo(registro.getNomarchivo2(), sftpPath);
 
                 String asuntoPersonalizado = asunto + " - Radicado: " + registro.getNrorad().trim();
 
@@ -89,7 +91,8 @@ import java.util.Optional;
                         registro.getNomarchivo(),
                         archivo1,
                         registro.getNomarchivo2(),
-                        archivo2
+                        archivo2,
+                        unidadNegocio
                 );
 
                 registro.setEnviado("SI");

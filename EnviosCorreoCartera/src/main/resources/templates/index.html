@@ -2,97 +2,21 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Envío de Correos Persuasivos</title>
+    <title>Envío de Correos de Cartera CAJA - EPS</title>
     <style>
-        /* Estilos generales del cuerpo de la página */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f4f7f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* Contenedor principal con aspecto de 'tarjeta' */
-        .container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 700px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 25px;
-        }
-
-        /* Contenedor del formulario usando CSS Grid para alinear */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 150px 1fr; /* Columna 1 para etiquetas, Columna 2 para campos */
-            gap: 15px 20px; /* Espacio entre filas y columnas */
-            align-items: center; /* Centra verticalmente los elementos en cada fila */
-        }
-
-        label {
-            text-align: right;
-            color: #555;
-            font-weight: bold;
-        }
-
-        /* Estilos para los campos de texto y área de texto */
-        input[type="date"],
-        input[type="text"],
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-        }
-
-        input:focus, textarea:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
-        textarea {
-            resize: vertical; /* Permite al usuario cambiar la altura del área de texto */
-        }
-
-        .button-container {
-            grid-column: 1 / -1; /* El botón ocupa todo el ancho de la cuadrícula */
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        /* Estilos para la sección de resultados */
-        .results-section {
-            margin-top: 30px;
-        }
+        /* Los estilos CSS que ya teníamos permanecen igual */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f7f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .container { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%; max-width: 700px; }
+        h1 { text-align: center; color: #333; margin-bottom: 25px; }
+        .form-grid { display: grid; grid-template-columns: 150px 1fr; gap: 15px 20px; align-items: center; }
+        label { text-align: right; color: #555; font-weight: bold; }
+        input[type="date"], input[type="text"], textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 1rem; }
+        input:focus, textarea:focus, select:focus { border-color: #007bff; outline: none; }
+        textarea { resize: vertical; }
+        .button-container { grid-column: 1 / -1; text-align: center; margin-top: 15px; }
+        button { background-color: #007bff; color: white; padding: 12px 25px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        .results-section { margin-top: 30px; }
         .mensaje { padding: 10px; background-color: #e7f3fe; border-left: 6px solid #2196F3; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
@@ -109,11 +33,24 @@
             <label for="fecha">Fecha de Envío:</label>
             <input type="date" id="fecha" name="fecha" required>
 
+            <label for="unidadNegocio">Unidad de Negocio:</label>
+            <select id="unidadNegocio" name="unidadNegocio" required>
+                <option value="" disabled selected>-- Elija una unidad --</option>
+                <option value="eps">EPS</option>
+                <option value="caja">Caja de Compensación</option>
+            </select>
+
+            <label for="sftpPath">Tipo de Envío:</label>
+            <select id="sftpPath" name="sftpPath" required disabled>
+                <option value="" disabled selected>-- Primero elija una Unidad de Negocio --</option>
+            </select>
+
             <label for="asunto">Asunto del Correo:</label>
             <input type="text" id="asunto" name="asunto" placeholder="Ej: Notificación Importante de Cartera" required>
 
             <label for="cuerpo">Cuerpo del Mensaje:</label>
             <textarea id="cuerpo" name="cuerpo" rows="6" placeholder="Escriba aquí el mensaje que irá en el correo..." required></textarea>
+
 
             <div class="button-container">
                 <button type="submit">Iniciar Envío de Correos</button>
@@ -153,5 +90,60 @@
         </div>
     </div>
 </div>
+<script>
+    const opcionesPorUnidad = {
+        caja: [
+
+            { texto: "1er Aviso", valor: "/home/cartas_1aviso/" },
+            { texto: "Aviso Anterior", valor: "/home/cartas_aviso_anterior/" },
+            { texto: "Persuasivo", valor: "/home/cartas_persuasivo/" }
+        ],
+        eps: [
+            // ¡IMPORTANTE! Debes reemplazar estos valores de ejemplo por los reales para la EPS
+            { texto: "1er Aviso", valor: "/home/eps_primer_aviso/" },
+            { texto: "Aviso Anterior", valor: "/home/eps_cobro_anterior/" },
+            { texto: "Segundo Cobro - Suspensión", valor: "/home/eps_segcobro_anterior/" }
+        ]
+    };
+
+    // 2. Obtenemos una referencia a nuestros dos menús desplegables
+    const unidadNegocioSelect = document.getElementById('unidadNegocio');
+    const tipoEnvioSelect = document.getElementById('sftpPath');
+
+    // 3. Creamos un "oyente" que se activa cada vez que el usuario
+    //    cambia la selección en el primer menú (Unidad de Negocio).
+    unidadNegocioSelect.addEventListener('change', function() {
+        // Obtenemos el valor seleccionado (ej: "eps" o "caja")
+        const unidadSeleccionada = this.value;
+
+        // Limpiamos completamente el segundo menú
+        tipoEnvioSelect.innerHTML = '';
+
+        // Añadimos la primera opción por defecto
+        let opcionDefault = new Option("-- Por favor, elija un tipo --", "");
+        opcionDefault.disabled = true;
+        opcionDefault.selected = true;
+        tipoEnvioSelect.add(opcionDefault);
+
+        // Si el usuario seleccionó una unidad válida...
+        if (unidadSeleccionada && opcionesPorUnidad[unidadSeleccionada]) {
+            // Buscamos las opciones correspondientes en nuestro objeto
+            const opciones = opcionesPorUnidad[unidadSeleccionada];
+
+            // Recorremos las opciones y las añadimos al segundo menú
+            opciones.forEach(opcion => {
+                // new Option(texto_visible, valor_real)
+                let nuevaOpcion = new Option(opcion.texto, opcion.valor);
+                tipoEnvioSelect.add(nuevaOpcion);
+            });
+
+            // Habilitamos el segundo menú
+            tipoEnvioSelect.disabled = false;
+        } else {
+            // Si no, lo mantenemos deshabilitado
+            tipoEnvioSelect.disabled = true;
+        }
+    });
+</script>
 </body>
 </html>

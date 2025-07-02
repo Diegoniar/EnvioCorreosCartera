@@ -21,10 +21,7 @@ public class SftpService {
     @Value("${sftp.password}")
     private String password;
 
-    @Value("${sftp.remote.directory.path}")
-    private String remoteDirectory;
-
-    public byte[] descargarArchivo(String nombreArchivo) throws JSchException, SftpException {
+    public byte[] descargarArchivo(String nombreArchivo, String remotePath) throws JSchException, SftpException {
         JSch jsch = new JSch();
         Session session = null;
         ChannelSftp channelSftp = null;
@@ -38,7 +35,7 @@ public class SftpService {
             channelSftp = (ChannelSftp) session.openChannel("sftp");
             channelSftp.connect();
 
-            String rutaCompleta = remoteDirectory + nombreArchivo.trim();
+            String rutaCompleta = remotePath + nombreArchivo.trim();
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             channelSftp.get(rutaCompleta, outputStream);
             return outputStream.toByteArray();
